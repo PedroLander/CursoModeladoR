@@ -8,7 +8,7 @@ y volumen de la madera sobre cerezos negros talados:
 
 Para acceder a los datos escribimos en R:
 
-``` r1
+``` r
 # Activamos los datos
 data(trees)
 ```
@@ -20,25 +20,37 @@ en función de la circunferencia del árbol (Girth), para ello:
 
 Comenzamos describiendo la relación entre las variables Volume y Girth.
 
-``` r2
+``` r
 # Exploramos las primeras 6 observaciones
 head(trees)
 ```
 
-``` r3
+    ##   Girth Height Volume
+    ## 1   8.3     70   10.3
+    ## 2   8.6     65   10.3
+    ## 3   8.8     63   10.2
+    ## 4  10.5     72   16.4
+    ## 5  10.7     81   18.8
+    ## 6  10.8     83   19.7
+
+``` r
 # Obtenemos las dimensiones
 dim(trees)
 ```
 
+    ## [1] 31  3
+
 Realizamos el diagrama de dispersión entre las variables.
 
-``` r4
+``` r
 # Activamos el paquete para realizar el diagrama de dispersión
 library(ggplot2)
 
 # Diagrama de dispersión entre Volume y Girth
 ggplot(data = trees, aes(x = Girth,y = Volume)) + geom_point()
 ```
+
+![](t2_ej1_files/figure-gfm/4-1.png)<!-- -->
 
 Vemos que tiene sentido ajustar un modelo de regresión lineal simple
 dado que la relación es bastante lineal.
@@ -50,17 +62,36 @@ indicáncole los datos (data) y cuál será la variable respuesta (Volume)
 y cuál la variable explicativa (Girth). Generamos un objeto llamado
 model_rm donde se guardan los resultados del modelo.
 
-``` r5
+``` r
 # Modelo de Regresión Lineal Simple para Volume en función de Girth
 model_rm <- lm(Volume ~ Girth, data = trees)
 ```
 
 Obtenemos el resumen modelo con la función summary().
 
-``` r6
+``` r
 # Resumen modelo Volume ~ Girth:
 summary(model_rm)
 ```
+
+    ## 
+    ## Call:
+    ## lm(formula = Volume ~ Girth, data = trees)
+    ## 
+    ## Residuals:
+    ##    Min     1Q Median     3Q    Max 
+    ## -8.065 -3.107  0.152  3.495  9.587 
+    ## 
+    ## Coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) -36.9435     3.3651  -10.98 7.62e-12 ***
+    ## Girth         5.0659     0.2474   20.48  < 2e-16 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 4.252 on 29 degrees of freedom
+    ## Multiple R-squared:  0.9353, Adjusted R-squared:  0.9331 
+    ## F-statistic: 419.4 on 1 and 29 DF,  p-value: < 2.2e-16
 
 Al final de la tabla se observan los estadísticos de bondad de ajuste.
 Tenemos:
@@ -77,9 +108,11 @@ Tenemos:
 Calculamos la tasa de error como el valor de RSE que hemos visto antes
 dividido el valor medio de la respuesta, así:
 
-``` r7
+``` r
 sigma(model_rm)/mean(trees$Volume)
 ```
+
+    ## [1] 0.1409298
 
 Con lo cual decimos que la tasa de error de nuestro modelo es del
 14.09%.
@@ -88,9 +121,13 @@ Con lo cual decimos que la tasa de error de nuestro modelo es del
 
 Esta es la tabla de coeficientes del modelo:
 
-``` r8
+``` r
 summary(model_rm)$coefficients
 ```
+
+    ##               Estimate Std. Error   t value     Pr(>|t|)
+    ## (Intercept) -36.943459   3.365145 -10.97827 7.621449e-12
+    ## Girth         5.065856   0.247377  20.47829 8.644334e-19
 
 -   El intercepto vale β0 = −36.943459, en este caso no tiene sentido
     debido a que sería el volumen de madera de un cerezo de un diámetro
@@ -107,7 +144,7 @@ cero).
 Para mostrar la ecuación del modelo final automatizando los coeficientes
 en la generación del informe, podemos usar el paquete ‘equatiomatic’:
 
-``` r9
+``` r
 # Instalamos en paquete 'equatiomatic' en caso de no tenerlo instalado aún
 #install.packages('equatiomatic')
 
@@ -118,23 +155,37 @@ library(equatiomatic)
 extract_eq(model_rm, wrap = TRUE, use_coefs = TRUE)
 ```
 
+$$
+\\begin{aligned}
+\\operatorname{\\widehat{Volume}} &= -36.94 + 5.07(\\operatorname{Girth})
+\\end{aligned}
+$$
+
 Podemos mostrar también la línea del modelo y su intervalo de confianza,
 superpuesta a las observaciones.
 
-``` r10
+``` r
 ggplot(trees, aes(x = Girth, y = Volume)) + 
   geom_point() +
   stat_smooth(method = "lm", col = "red")
 ```
+
+    ## `geom_smooth()` using formula 'y ~ x'
+
+![](t2_ej1_files/figure-gfm/10-1.png)<!-- -->
 
 ## Obtenga los intervalos de confianza de los coeficientes de regresión.
 
 Para obtener los intervalos de confianza de los coeficientes,
 escribimos:
 
-``` r11
+``` r
 confint(model_rm)
 ```
+
+    ##                  2.5 %     97.5 %
+    ## (Intercept) -43.825953 -30.060965
+    ## Girth         4.559914   5.571799
 
 Con un 95% de confianza podemos decir que, en la población, el
 intercepto tomará un valor entre \[-43.825953 , -30.060965\] y la
@@ -147,11 +198,13 @@ pendiente en \[4.559914 , 5.571799\].
 Para evaluar los supuestos de linealidad del modelo realizamos los
 gráficos diagnósticos de los residuos.
 
-``` r12
+``` r
 # Diagnóstico del modelo: Volume ~ Girth
 par(mfrow = c(2,2))
 plot(model_rm)
 ```
+
+![](t2_ej1_files/figure-gfm/12-1.png)<!-- -->
 
 Podemos observar en los gráficos:
 
@@ -164,10 +217,16 @@ Podemos observar en los gráficos:
     las colas no se apartan demasiado de la diagonal. Lo podemos
     comprobar con la prueba de Shapiro-Wilk.
 
-``` r13
+``` r
 # Prueba de normalidad de los residuos del modelo
 shapiro.test(model_rm$residuals)
 ```
+
+    ## 
+    ##  Shapiro-Wilk normality test
+    ## 
+    ## data:  model_rm$residuals
+    ## W = 0.97889, p-value = 0.7811
 
 Comprobamos que el p-valor \> 0.05. No podemos decir que los datos no se
 ajusten a una distribución normal.
@@ -186,17 +245,49 @@ diámetros intermedios y que el volumen es una magnitud superior en dos
 órdenes al diámetro, podría tener sentido utilizar otro modelo de ajuste
 que incluyera el segundo grado del diámetro.
 
-``` r14
+``` r
 model_rm2 <- lm(Volume ~ Girth + I(Girth^2), data = trees)
 
 summary(model_rm2)
+```
 
+    ## 
+    ## Call:
+    ## lm(formula = Volume ~ Girth + I(Girth^2), data = trees)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -5.4889 -2.4293 -0.3718  2.0764  7.6447 
+    ## 
+    ## Coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) 10.78627   11.22282   0.961 0.344728    
+    ## Girth       -2.09214    1.64734  -1.270 0.214534    
+    ## I(Girth^2)   0.25454    0.05817   4.376 0.000152 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 3.335 on 28 degrees of freedom
+    ## Multiple R-squared:  0.9616, Adjusted R-squared:  0.9588 
+    ## F-statistic: 350.5 on 2 and 28 DF,  p-value: < 2.2e-16
+
+``` r
 extract_eq(model_rm2, wrap = TRUE, use_coefs = TRUE)
+```
 
+$$
+\\begin{aligned}
+\\operatorname{\\widehat{Volume}} &= 10.79 - 2.09(\\operatorname{Girth}) + 0.25(\\operatorname{Girth\\texttt{\\^{}}2})
+\\end{aligned}
+$$
+
+``` r
 # Diagnóstico del modelo2: Volume ~ Girth
 par(mfrow = c(2,2))
 plot(model_rm2)
 ```
+
+![](t2_ej1_files/figure-gfm/13-1.png)<!-- -->
 
 ### Supuesto de independencia de las observaciones
 
@@ -205,7 +296,7 @@ podríamos medir el grado de correlación entre las mismas debido al
 proceso de toma de datos, mediante, por ejemplo, la prueba de
 Durbin-Watson, del paquete ‘car’.
 
-``` r15
+``` r
 # Instalamos en paquete 'car' en caso de no tenerlo instalado aún
 #install.packages('car')
 
@@ -214,6 +305,10 @@ library(car)
 
 durbinWatsonTest(model_rm)
 ```
+
+    ##  lag Autocorrelation D-W Statistic p-value
+    ##    1       0.1679948      1.437206    0.07
+    ##  Alternative hypothesis: rho != 0
 
 En casi todas las veces que se ejecuta este test, el p-valor del
 ‘bootstrap’ es \> .05 por lo que asumimos que los datos no presentan
