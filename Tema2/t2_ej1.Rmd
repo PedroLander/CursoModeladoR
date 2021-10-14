@@ -1,0 +1,191 @@
+---
+title: "Tema 2. Ejercicio obligatorio"
+author: "Pedro Fernández Rodríguez"
+date: "11/10/2021"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Utilizaremos los datos “trees”. Se trata de un conjunto de datos que consta de 31 observaciones sobre mediciones de la circunferencia, altura y volumen de la madera sobre cerezos negros talados:
+
+- Girth: Diámetro en pulgadas del árbol.
+- Height: Altura en pies del árbol.
+- Volume: Volumen de la madera en pies cúbicos.
+
+Para acceder a los datos escribimos en R:
+```{r 1}
+# Activamos los datos
+data(trees)
+```
+
+Se desea realizar un modelo de regresión que estime el volumen (Volume) en función de la circunferencia del árbol (Girth), para ello: 
+
+## Realice un análisis exploratorio y visualice la relación entre las dos variables.
+
+Comenzamos describiendo la relación entre las variables Volume y Girth.
+```{r 2}
+# Exploramos las primeras 6 observaciones
+head(trees)
+```
+```{r 3}
+# Obtenemos las dimensiones
+dim(trees)
+```
+Realizamos el diagrama de dispersión entre las variables.
+```{r 4}
+# Activamos el paquete para realizar el diagrama de dispersión
+library(ggplot2)
+
+# Diagrama de dispersión entre Volume y Girth
+ggplot(data = trees, aes(x = Girth,y = Volume)) + geom_point()
+```
+
+Vemos que tiene sentido ajustar un modelo de regresión lineal simple dado que la relación es bastante lineal.
+
+## Realice un modelo de regresión simple por medio de la función lm(). Interprete la bondad de ajuste y calcule la tasa de error.
+
+Ajustamos un modelo de regresión simple por medio de la función lm() indicáncole los datos (data) y cuál
+será la variable respuesta (Volume) y cuál la variable explicativa (Girth). Generamos un objeto llamado model_rm
+donde se guardan los resultados del modelo.
+```{r 5}
+# Modelo de Regresión Lineal Simple para Volume en función de Girth
+model_rm <- lm(Volume ~ Girth, data = trees)
+```
+Obtenemos el resumen modelo con la función summary().
+```{r 6}
+# Resumen modelo Volume ~ Girth:
+summary(model_rm)
+```
+
+Al final de la tabla se observan los estadísticos de bondad de ajuste. Tenemos:
+
+- Un error estándar residual RSE = 4.252, es decir el error de las estimaciones es de 4.252 pies cúbicos.
+- Un coeficiente de determinación R2 = 93.5%, por lo que nuestro modelo explica casi toda la variabilidad en el volumen de madera.
+- Obtenemos la prueba F de significación global del modelo F(1,29) = 419.4,p < .001, con lo cual decimos que este modelo explica/predice el volumen de madera (Volume) significativamente mejor que el volumen medio en las observaciones. Este modelo es significativo.
+
+Calculamos la tasa de error como el valor de RSE que hemos visto antes dividido el valor medio de la respuesta, así:
+
+```{r 7}
+sigma(model_rm)/mean(trees$Volume)
+```
+
+Con lo cual decimos que la tasa de error de nuestro modelo es del 14.09%.
+
+## Interprete los coeficientes de regresión del modelo.
+
+Esta es la tabla de coeficientes del modelo:
+```{r 8}
+summary(model_rm)$coefficients
+```
+
+- El intercepto vale β0 = −36.943459, en este caso no tiene sentido debido a que sería el volumen de madera de un cerezo de un diámetro de cero pulgadas. (algo irreal). Podríamos centrar el predictor para que pasara a
+interpretarse como el volumen de madera de un cerezo de un diámetro medio.
+- La pendiente vale β1 = 5.065856, lo cual quiere decir que por cada pulgada más de diámetro, el volumen de madera del árbol es 5.065856 pies cúbicos más.
+
+Ambos coeficientes son significativos (significativamente distintos de cero).
+
+Para mostrar la ecuación del modelo final automatizando los coeficientes en la generación del informe, podemos usar el paquete 'equatiomatic':
+```{r 9}
+# Instalamos en paquete 'equatiomatic' en caso de no tenerlo instalado aún
+#install.packages('equatiomatic')
+
+# Activamos el paquete
+library(equatiomatic)
+
+# Mostramos la ecuación del modelo
+extract_eq(model_rm, wrap = TRUE, use_coefs = TRUE)
+```
+
+Podemos mostrar también la línea del modelo y su intervalo de confianza, superpuesta a las observaciones.
+
+```{r 10}
+ggplot(trees, aes(x = Girth, y = Volume)) + 
+  geom_point() +
+  stat_smooth(method = "lm", col = "red")
+```
+
+## Obtenga los intervalos de confianza de los coeficientes de regresión.
+
+Para obtener los intervalos de confianza de los coeficientes, escribimos:
+
+```{r 11}
+confint(model_rm)
+```
+Con un 95% de confianza podemos decir que, en la población, el intercepto tomará un valor entre
+[-43.825953 , -30.060965] y la pendiente en [4.559914   , 5.571799].
+
+## Evalúe los supuestos del modelo. 
+### Supuesto de linealidad.
+Para evaluar los supuestos de linealidad del modelo realizamos los gráficos diagnósticos de los residuos.
+
+```{r 12}
+# Diagnóstico del modelo: Volume ~ Girth
+par(mfrow = c(2,2))
+plot(model_rm)
+```
+
+Podemos observar en los gráficos:
+
+1. 'Residuals vs Fitted'. Los residuos aumentan algo en los extremos del rango de valores ajustados (línea roja) por lo que no se cumpliría el supuesto de homogeneidad de varianza (u Homocedásticidad).
+
+2. 'Normal Q-Q'. Los residuos parecen seguir una distribución normal, las colas no se apartan demasiado de la diagonal. Lo podemos comprobar con la prueba de Shapiro-Wilk.
+```{r 14}
+# Prueba de normalidad de los residuos del modelo
+shapiro.test(model_rm$residuals)
+
+```
+Comprobamos que el p-valor > 0.05. No podemos decir que los datos no se ajusten a una distribución normal.
+
+3. 'Scale-Location'. Podemos observar que el mismo patrón que en el 'gráfico 1' también se produce en este con los residuos estandarizados.
+
+4. 'Residuals vs Leverage'. Aunque el valor absoluto de los residuos estandarizados es menor que 3, llama la atención que la observación de mayor diámetro supere la línea de 0.5 de la distancia de Cook.
+
+
+Dado que se observa que este modelo tiende a subestimar el volumen de madera dados diámetros pequeños o grandes y a sobreestimarlo dados diámetros intermedios y que el volumen es una magnitud superior en dos órdenes al diámetro, podría tener sentido utilizar otro modelo de ajuste que incluyera el segundo grado del diámetro.
+
+```{r 13}
+
+model_rm2 <- lm(Volume ~ Girth + I(Girth^2), data = trees)
+
+summary(model_rm2)
+
+extract_eq(model_rm2, wrap = TRUE, use_coefs = TRUE)
+
+# Diagnóstico del modelo2: Volume ~ Girth
+par(mfrow = c(2,2))
+plot(model_rm2)
+```
+
+### Supuesto de independencia de las observaciones
+Si las observaciones del conjunto de datos estuviesen ordenadas, podríamos medir el grado de correlación entre las mismas debido al proceso de toma de datos, mediante, por ejemplo, la prueba de Durbin-Watson, del paquete 'car'.
+
+```{r 15}
+# Instalamos en paquete 'car' en caso de no tenerlo instalado aún
+#install.packages('car')
+
+# Activamos el paquete 'car'
+library(car)
+
+durbinWatsonTest(model_rm)
+```
+
+En casi todas las veces que se ejecuta este test, el p-valor del 'bootstrap' es > .05 por lo que asumimos que los datos no presentan autocorrelación.
+
+
+
+
+
+
+
+
+
+
+
+
+
