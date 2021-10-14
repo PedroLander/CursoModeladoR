@@ -50,7 +50,7 @@ library(ggplot2)
 ggplot(data = trees, aes(x = Girth,y = Volume)) + geom_point()
 ```
 
-![](t2_ej1_files/figure-markdown_github/4-1.png)
+![](t2_ej1_files/figure-gfm/4-1.png)<!-- -->
 
 Vemos que tiene sentido ajustar un modelo de regresión lineal simple
 dado que la relación es bastante lineal.
@@ -172,7 +172,7 @@ ggplot(trees, aes(x = Girth, y = Volume)) +
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](t2_ej1_files/figure-markdown_github/10-1.png)
+![](t2_ej1_files/figure-gfm/10-1.png)<!-- -->
 
 ## Obtenga los intervalos de confianza de los coeficientes de regresión.
 
@@ -204,7 +204,7 @@ par(mfrow = c(2,2))
 plot(model_rm)
 ```
 
-![](t2_ej1_files/figure-markdown_github/12-1.png)
+![](t2_ej1_files/figure-gfm/12-1.png)<!-- -->
 
 Podemos observar en los gráficos:
 
@@ -231,11 +231,11 @@ shapiro.test(model_rm$residuals)
 Comprobamos que el p-valor \> 0.05. No podemos decir que los datos no se
 ajusten a una distribución normal.
 
-1.  ‘Scale-Location’. Podemos observar que el mismo patrón que en el
+3.  ‘Scale-Location’. Podemos observar que el mismo patrón que en el
     ‘gráfico 1’ también se produce en este con los residuos
     estandarizados.
 
-2.  ‘Residuals vs Leverage’. Aunque el valor absoluto de los residuos
+4.  ‘Residuals vs Leverage’. Aunque el valor absoluto de los residuos
     estandarizados es menor que 3, llama la atención que la observación
     de mayor diámetro supere la línea de 0.5 de la distancia de Cook.
 
@@ -277,7 +277,7 @@ extract_eq(model_rm2, wrap = TRUE, use_coefs = TRUE)
 
 $$
 \\begin{aligned}
-\\operatorname{\\widehat{Volume}} &= 10.79 - 2.09(\\operatorname{Girth}) + 0.25(\\operatorname{Girth\\texttt{^}2})
+\\operatorname{\\widehat{Volume}} &= 10.79 - 2.09(\\operatorname{Girth}) + 0.25(\\operatorname{Girth\\texttt{\\^{}}2})
 \\end{aligned}
 $$
 
@@ -287,7 +287,7 @@ par(mfrow = c(2,2))
 plot(model_rm2)
 ```
 
-![](t2_ej1_files/figure-markdown_github/13-1.png)
+![](t2_ej1_files/figure-gfm/13-1.png)<!-- -->
 
 ### Supuesto de independencia de las observaciones
 
@@ -302,16 +302,12 @@ Durbin-Watson, del paquete ‘car’.
 
 # Activamos el paquete 'car'
 library(car)
-```
 
-    ## Loading required package: carData
-
-``` r
 durbinWatsonTest(model_rm)
 ```
 
     ##  lag Autocorrelation D-W Statistic p-value
-    ##    1       0.1679948      1.437206   0.066
+    ##    1       0.1679948      1.437206   0.084
     ##  Alternative hypothesis: rho != 0
 
 En casi todas las veces que se ejecuta este test, el p-valor del
