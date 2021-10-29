@@ -3,12 +3,12 @@ title: "Tema 2. Ejercicio obligatorio"
 author: "Pedro Fernández Rodríguez"
 date: "11/10/2021"
 output:
-  md_document:
-    variant: markdown_github
+  html_document:
+    df_print: paged
+  pdf_document: 
+    latex_engine: xelatex
 ---
-```{r global_options}
-knitr::opts_chunk$set(fig.path='Figs/')
-```
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
