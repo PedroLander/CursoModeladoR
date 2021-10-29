@@ -1,8 +1,4 @@
-``` r
-knitr::opts_chunk$set(fig.path='Figs/')
-```
-
-Utilizaremos los datos “trees”. Se trata de un conjunto de datos que
+﻿Utilizaremos los datos “trees”. Se trata de un conjunto de datos que
 consta de 31 observaciones sobre mediciones de la circunferencia, altura
 y volumen de la madera sobre cerezos negros talados:
 
@@ -54,7 +50,7 @@ library(ggplot2)
 ggplot(data = trees, aes(x = Girth,y = Volume)) + geom_point()
 ```
 
-![](Figs/4-1.png)
+![](t2_ej1_files/figure-gfm/4-1.png)
 
 Vemos que tiene sentido ajustar un modelo de regresión lineal simple
 dado que la relación es bastante lineal.
@@ -176,7 +172,7 @@ ggplot(trees, aes(x = Girth, y = Volume)) +
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](Figs/10-1.png)
+![](t2_ej1_files/figure-gfm/10-1.png)
 
 ## Obtenga los intervalos de confianza de los coeficientes de regresión.
 
@@ -208,7 +204,7 @@ par(mfrow = c(2,2))
 plot(model_rm)
 ```
 
-![](Figs/12-1.png)
+![](t2_ej1_files/figure-gfm/12-1.png)
 
 Podemos observar en los gráficos:
 
@@ -291,7 +287,7 @@ par(mfrow = c(2,2))
 plot(model_rm2)
 ```
 
-![](Figs/13-1.png)
+![](t2_ej1_files/figure-gfm/13-1.png)
 
 Con este modelo sí parece haber homocedasticidad en los residuos, por lo
 que se cumpliría este supuesto y sí sería un modelo válido, atendiendo a
