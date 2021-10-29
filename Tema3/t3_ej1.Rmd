@@ -1,0 +1,250 @@
+---
+title: "Tema 3. Ejercicio obligatorio"
+author: "Pedro Fernández Rodríguez"
+date: "29/10/2021"
+output:
+  pdf_document: 
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Utilizaremos los datos “trees”. Se trata de un conjunto de datos que consta de 31 observaciones sobre mediciones de la circunferencia, altura y volumen de la madera sobre cerezos negros talados:
+
+- Girth: Diámetro en pulgadas del árbol.
+- Height: Altura en pies del árbol.
+- Volume: Volumen de la madera en pies cúbicos.
+
+Para acceder a los datos escribimos en R:
+```{r 1}
+# Activamos los datos
+data(trees)
+```
+
+Se desea estimar un modelo de regresión dque estime el volumen (Volume) en función de la circunferencia del árbol (Girth) y la altura del árbol (Height); para ello:
+
+## Realice un análisis exploratorio y visualice la relación entre las tres variables. 
+Comenzamos describiendo la relación entre las variables Volume, Girth y Height.
+```{r 2}
+# observamos las primeras 5 observaciones
+head(trees)
+```
+
+```{r 3}
+# Obtenemos las dimensiones de la base de datos
+dim(trees)
+```
+
+Vemos que las 3 variables que vamos a analizar (Volume, Girth y Height) son todas numéricas.
+
+Podemos visualizar la relación entre la respuesta y los predictores mediante 2 diagramas de dispersión. Para ello utilizamos la función ggpairs del paquete GGally.
+```{r 4}
+# Instalamos el paquete GGally en caso de no tenerlo instalado
+#install.packages("GGally")
+
+# Activamos el paquete GGally
+library(GGally)
+
+# Graficamos las 3 variables
+ggpairs(trees[,c("Volume", "Girth","Height")])
+```
+
+Vemos que exsiste una relación positiva entre los tres pares de variables. En caso del par Volume y Girth, la correlación es mayor.
+
+También podemos obtener un gráfico 3D con la nube de puntos mediante la función scatter3D del
+paquete plot3D.
+
+```{r 5}
+# Instalamos el paquete plot3D en caso de no tenerlo instalado
+#install.packages("plot3D")
+
+# Activamos el paquete plot3D
+library(plot3D)
+
+# Realizamos el gráfico 3D con las 3 variables que estamos analizando
+scatter3D(x=trees$Height,
+y=trees$Girth,
+z=trees$Volume,
+xlab="Height",
+ylab="Girth",
+zlab="Volume")
+```
+
+## Realice un modelo de regresión múltiple por medio de la función lm() solo con efectos principales. Interprete la bondad de ajuste del modelo. Calcule la tasa de error del modelo.
+
+Realizamos un modelo de regresión múltiple por medio de la función lm() para las 3 variables que vamos a analizar (Volume, Girth y Height).
+```{r 6}
+# Ajustamos el modelo de regresión lineal múltiple
+model_trees <- lm(Volume~Girth+Height, data= trees)
+
+# Observamos los resultados
+summary(model_trees)
+```
+
+Para interpretar la bondad de ajuste observamos los resultados finales del modelo:
+
+* Prueba de F global: El modelo de regresión predice el volumen de madera significativamente
+bien (F (2, 28) = 255, p −value < .001).
+
+* El error estándar residual (RSE) es de 3.882 pies cúbicos.
+
+* La tasa de error es 
+```{r 7}
+sigma(model_trees)/mean(trees$Volume)
+```
+
+* R2: el coeficiente de determinación ajustado (que es el que nos interesa) es R2= .9442, es decir,nuestro modelo (o los 2 predictores considerados) explican el 94.42% de la variabilidad en la respuesta.
+
+## Interprete los coeficientes del modelo.
+
+Obtenemos la tabla de coeficientes:
+```{r 8}
+summary(model_trees)$coefficients
+```
+* El intercepto vale -57.9876589, en este caso no tiene sentido interpretar su valor ya que es imposible estimar el volumen de madera (Volume) para árboles de 0 pulgadas de circunferencia (Girth) y 0 pies de altura (Height). (una opción sería centrar las variables
+para que el intercepto pase a tener sentido como el volumen de madera para una cierta circunferencia y una cierta altura).
+
+* El coeficiente de regresión para el predictor Girth vale 4.7081605 y representa el cambio en el volumen de madera del árbol al aumentar 1 pulgada de circunferencia (Girth), cuando la altura permanece constante (Height).
+
+* El coeficiente de regresión para el predictor Height vale 0.3392512 y representa el cambio en el volumen de madera (Volume) al aumentar 1 pulgada de altura (Height) manteniendo constante la circunferencia (Girth).
+
+## Calcule los intervalos de confianza para los coeficientes.
+
+```{r 9}
+confint(model_trees)
+```
+
+## Calcule la importancia relativa de los predictores.
+
+La función _calc.relimp()_ del paquete _relaimpo_ calcula la importancia relativa de los predictores con el método **LMG**. Nos da la contribución de cada predictor al R^2^ (promediada según el orden en que se ingresan los predictores).
+
+```{r 10, message=FALSE}
+# Instalamos el paquete relaimpo en caso de no tenerlo instalado
+#install.packages("relaimpo")
+
+# Activamos el paquete
+library(relaimpo)
+```
+```{r 11}
+# Calculamos la importancia relativa de los predictores.
+crlm <- calc.relimp(model_trees, # objeto con el modelo
+type = c("lmg"), # medida utilizada
+rela = TRUE) # para sumar 100%
+
+#resultados
+crlm
+```
+
+Según el método LMG la variable Girth (.804561) tiene mayor importancia relativa en el modelo respecto a Height (.195439).
+
+## Evalué los supuestos del modelo.
+
+Realizamos los gráficos diagnóstico del modelo.
+
+```{r 12}
+#gráficos diagnóstico del modelo
+par(mfrow = c(2,2))
+plot(model_trees)
+```
+
+Podemos indicar que:
+
+1. Los residuos aumentan en los extremos del rango de valores ajustados con lo cual
+no se cumpliría el supuesto de homogeneidad de varianza (u Homocedásticidad).
+2. 'Normal Q-Q'. Los residuos parecen seguir una distribución normal, las colas no se apartan demasiado de la diagonal. Lo podemos comprobar con la prueba de Shapiro-Wilk.
+```{r 14}
+# Prueba de normalidad de los residuos del modelo
+shapiro.test(model_trees$residuals)
+
+```
+Comprobamos que el p-valor > 0.05 por lo que no descartamos la hipótesis nula, es decir, que los residuos siguen una distribución normal.
+
+3. Lo mismo que en el punto 1.
+
+4. 4. 'Residuals vs Leverage'. Aunque el valor absoluto de los residuos estandarizados es menor que 3, llama la atención que la observación de mayor diámetro supere la línea de 0.5 de la distancia de Cook.
+
+## Realice un modelo de regresión con efectos de interacción entre los 2 predictores. Evalúe posibles problemas de multicolinealidad y en tal caso centre los predictores.
+
+Ajustamos el modelo de regresión lineal múltiple con interacción:
+```{r 15}
+# Ajustamos un RLM con interacción
+model_trees2 <- lm(Volume~Girth*Height, data= trees)
+```
+
+Comprobamos si existe multicolinealidad de nuestras variables predictoras.
+```{r 16, message=FALSE}
+# Instalamos el paquete car en caso de no tenerlo instalado
+#install.packages("car")
+
+# Activamos el paquete
+library(car)
+```
+```{r 17}
+# Multicolinealidad: VIF
+vif(model_trees2)
+```
+Tenemos problemas de multicolinealidad, los V IF son > 5, esto ocurre porque las variables no están centradas y hemos incluido un término de interacción.
+
+Vamos a centrar las variables para eliminar los problemas de multicolinealidad.
+
+```{r 18}
+# Centramos la variable Girth
+Girth2<-scale(trees$Girth,
+center=TRUE,
+scale=FALSE)
+
+# Centramos la variable Height
+Height2<-scale(trees$Height,
+center=TRUE,
+scale=FALSE)
+
+# Volvemos a ajustar un RLM con interacción con las variables centradas
+model_trees3 <- lm(trees$Volume ~ Girth2*Height2)
+```
+
+Volvemos a calcular el VIF.
+```{r 19}
+vif(model_trees3)
+```
+
+Ya no tenemos problemas de multicolinealidad.
+
+*************
+A continuación, evaluamos la significación de cada término del modelo.
+
+```{r 20}
+Anova(model_trees3)
+```
+
+Vemos que la interacción es significativa (F (1, 27) = 30.51191, p < .001) y por tanto debe incluirse en el modelo final.
+
+## Interprete los coeficientes del modelo.
+
+Observamos la tabla de coeficientes e interpretamos:
+```{r 21}
+summary(model_trees3)
+```
+
+Como hemos centrado previamente las variables, interpretamos la interacción de la siguiente manera:
+
+* El efecto de la circunferencia (Girth2) sobre el volumen de madera (Volume) aumenta en
+0.13465 pies cúbicos por cada pie que aumenta la altura (Height2).
+
+Por ejemplo, para una altura promedio, el volumen de madera de un cerezo negro aumenta
+en 4.37789 pies cúbicos por cada pulgada extra de circunferencia. Si la altura es un pie mayor que el promedio, el efecto de cada pulgada extra de circunferencia pasa a ser 4.37789 + (0.13465∗1) = 4.51254 pies cúbicos.
+
+
+El modelo final es:
+
+$$
+\begin{aligned}
+\operatorname{{Volume}} &= 28.81791 + 4.37789 ∗\operatorname{\overline{Girth}} + 0.48687 ∗ \operatorname{\overline{Height}} + 0.13465*\operatorname{\overline{Girth}} : \operatorname{\overline{Height}}
+\end{aligned}
+$$
+
+
