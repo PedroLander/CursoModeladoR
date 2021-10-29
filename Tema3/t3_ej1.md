@@ -58,7 +58,7 @@ library(GGally)
 ggpairs(trees[,c("Volume", "Girth","Height")])
 ```
 
-![](t3_ej1_files/figure-markdown_github/4-1.png)
+![](t3_ej1_files/figure-markdown_strict/4-1.png)
 
 Vemos que exsiste una relación positiva entre los tres pares de
 variables. En caso del par Volume y Girth, la correlación es mayor.
@@ -80,7 +80,7 @@ ylab="Girth",
 zlab="Volume")
 ```
 
-![](t3_ej1_files/figure-markdown_github/5-1.png)
+![](t3_ej1_files/figure-markdown_strict/5-1.png)
 
 ## Realice un modelo de regresión múltiple por medio de la función lm() solo con efectos principales. Interprete la bondad de ajuste del modelo. Calcule la tasa de error del modelo.
 
@@ -205,7 +205,7 @@ Realizamos los gráficos diagnóstico del modelo.
 par(mfrow = c(2,2))
 plot(model_trees)
 ```
-![](t3_ej1_files/figure-markdown_github/12-1.png)
+![](t3_ej1_files/figure-markdown_strict/12-1.png)
 Podemos indicar que:
 1.  Los residuos aumentan en los extremos del rango de valores ajustados
     con lo cual no se cumpliría el supuesto de homogeneidad de varianza
