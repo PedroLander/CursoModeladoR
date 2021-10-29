@@ -368,4 +368,4 @@ de cada pulgada extra de circunferencia pasa a ser 4.37789 + (0.13465∗1)
 
 El modelo final es:
 
-<img src="https://render.githubusercontent.com/render/math?math=operatorname{{Volume}} &= 28.81791 + 4.37789 ∗\\operatorname{\\overline{Girth}} + 0.48687 ∗ \\operatorname{\\overline{Height}} + 0.13465\*\\operatorname{\\overline{Girth}} : \\operatorname{\\overline{Height}}">
+<img src="https://render.githubusercontent.com/render/math?math=operatorname{{Volume}}& 28.81791+4.37789∗\\operatorname{\\overline{Girth}}+0.48687∗\\operatorname{\\overline{Height}}+ 0.13465\*\\operatorname{\\overline{Girth}}:\\operatorname{\\overline{Height}}">
