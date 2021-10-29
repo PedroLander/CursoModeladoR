@@ -367,5 +367,5 @@ de cada pulgada extra de circunferencia pasa a ser 4.37789 + (0.13465∗1)
 = 4.51254 pies cúbicos.
 
 El modelo final es:
-
-<img src="https://render.githubusercontent.com/render/math?math=Volume = 28.81791 - 4.37789 ∗ {\\overline{Girth}}+0.48687∗{\\overline{Height}}+ 0.13465\*{\\overline{Girth}}:{\\overline{Height}}">
+h<sub>&theta;</sub>(x) = &theta;<sub>o</sub> x + &theta;<sub>1</sub>x
+<img src="https://render.githubusercontent.com/render/math?math=Volume = 28.81791 + 4.37789 ∗ {\\overline{Girth}}+0.48687∗{\\overline{Height}}+ 0.13465\*{\\overline{Girth}}:{\\overline{Height}}">
