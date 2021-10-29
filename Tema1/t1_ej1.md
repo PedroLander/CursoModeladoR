@@ -202,11 +202,6 @@ attach(eurosoccer)
     ##     Games, GoalDifference, GoalsConceded, GoalsGame, GoalsScored,
     ##     League, Lost, Points, Team, Tied, Won
 
-    ## The following objects are masked from eurosoccer (pos = 4):
-    ## 
-    ##     Games, GoalDifference, GoalsConceded, GoalsGame, GoalsScored,
-    ##     League, Lost, Points, Team, Tied, Won
-
 En la función pcor.test indicamos con x e y las variables para las que
 vamos a analizar la correlación y con z la variable que vamos a
 controlar. Además, como hemos visto que la correlación de Spearman es

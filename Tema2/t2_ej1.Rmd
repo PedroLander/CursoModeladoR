@@ -3,11 +3,12 @@ title: "Tema 2. Ejercicio obligatorio"
 author: "Pedro Fernández Rodríguez"
 date: "11/10/2021"
 output:
-  html_document:
-    df_print: paged
-  pdf_document: default
+  md_document:
+    variant: markdown_github
 ---
-
+```{r global_options}
+knitr::opts_chunk$set(fig.path='Figs/')
+```
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -162,6 +163,8 @@ par(mfrow = c(2,2))
 plot(model_rm2)
 ```
 
+Con este modelo sí parece haber homocedasticidad en los residuos, por lo que se cumpliría este supuesto y sí sería un modelo válido, atendiendo a que también se mantiene la normalidad de los residuos y que todos entran en la distancia de Cook de 0.5.
+
 ### Supuesto de independencia de las observaciones
 Si las observaciones del conjunto de datos estuviesen ordenadas, podríamos medir el grado de correlación entre las mismas debido al proceso de toma de datos, mediante, por ejemplo, la prueba de Durbin-Watson, del paquete 'car'.
 
@@ -177,13 +180,98 @@ durbinWatsonTest(model_rm)
 
 En casi todas las veces que se ejecuta este test, el p-valor del 'bootstrap' es > .05 por lo que asumimos que los datos no presentan autocorrelación.
 
+## Obtenga la potencia estadística del modelo. 
+
+Para estimar la potencia estadística del modelo de regresión lineal utilizamos los resultados de la prueba F (o tabla ANOVA) y la función _pwr.f2.test_ del paquete pwr.
+
+```{r 16}
+# Activamos el paquete 'pwr'
+library(pwr)
+```
+
+Para el modelo de grado 1:
+```{r 17}
+pwr.f2.test(u = 1, #grados de libertad del numerador en la prueba F.
+v = 29, #grados de libertad del denominador en la prueba F.
+f2 = .935/(1-.935), #tamaño del efecto estimado
+sig.level = 0.05, #nivel de significación asumido
+power = NULL) #potencia estadística, queda con NULL para que se estime
+```
+Para el modelo de grado 2:
+```{r 18}
+pwr.f2.test(u = 2, #grados de libertad del numerador en la prueba F.
+v = 28, #grados de libertad del denominador en la prueba F.
+f2 = .962/(1-.962), #tamaño del efecto estimado
+sig.level = 0.05, #nivel de significación asumido
+power = NULL) #potencia estadística, queda con NULL para que se estime
+```
+
+El valor de potencia estadística estimada es del 100%, es decir, podemos estar seguros de que nuestro modelo es significativo.
+
+## Realice una predicción del volumen cuando el diámetro es de 10.6, 8.2, 11 y 20 pulgadas.
+
+La función genérica predict() del paquete stats (instalado por defecto en R) permite hacer predicciones con nuestro modelo, a partir de nuevos valores para nuestra variable explicativa.
+
+Para indicarle a la función los valores de la variable explicativa para los cuales queremos estimar la variable respuesta, debemos crear un data frame que contenga los nuevos valores que queremos evaluar.
+
+Entonces en este caso escribimos:
+```{r 19}
+new <- data.frame(Girth= c(10.6, 8.2, 11, 20))
+```
+Utilizamos la función predict() para predecir la respuesta según estos nuevos valores y el modelo ajustado previamente:
+
+Para el modelo de grado 1:
+```{r 20}
+predict(model_rm, newdata = new)
+```
+
+Para el modelo de grado 2:
+```{r 21}
+predict(model_rm2, newdata = new)
+```
+
+## Obtenga el intervalo de confianza e intervalo de predicción para los nuevos datos.
+
+### Intervalo de confianza
+
+Para mostrar los intervalos de confianza del 95% alrededor de la media de las predicciones, especificamos la opción interval = ”confidence”:
+
+Para el modelo de grado 1:
+```{r 22}
+predict(model_rm,
+newdata = new,
+interval = "confidence")
+```
+
+Para el modelo de grado 2:
+```{r 23}
+predict(model_rm2,
+newdata = new,
+interval = "confidence")
+```
+
+Podemos decir con un 95% de confianza que, según nuestro modelo de grado 2, un cerezo negro de 20 pulgadas de diámetro tiene un volumen entre 66.55861 y 74.95839 pies cúbicos.
 
 
+### Intervalo de predicción
 
+Para mostrar los intervalos de predicción del 95% alrededor de las predicciones puntuales, especificamos la opción interval = ”prediction”:
 
+Para el modelo de grado 1:
+```{r 24}
+predict(model_rm,
+newdata = new,
+interval = "prediction")
+```
 
+Para el modelo de grado 2:
+```{r 25}
+predict(model_rm2,
+newdata = new,
+interval = "prediction")
+```
 
-
+Es decir, según el modelo de grado 2, el 95% de los cerezos negros de 20 pulgadas de diámetro tendrá un volumen entre 62.739674 y 78.77733 pies cúbicos.
 
 
 

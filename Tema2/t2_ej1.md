@@ -1,3 +1,7 @@
+``` r
+knitr::opts_chunk$set(fig.path='Figs/')
+```
+
 Utilizaremos los datos “trees”. Se trata de un conjunto de datos que
 consta de 31 observaciones sobre mediciones de la circunferencia, altura
 y volumen de la madera sobre cerezos negros talados:
@@ -50,7 +54,7 @@ library(ggplot2)
 ggplot(data = trees, aes(x = Girth,y = Volume)) + geom_point()
 ```
 
-![](t2_ej1_files/figure-gfm/4-1.png)<!-- -->
+![](Figs/4-1.png)
 
 Vemos que tiene sentido ajustar un modelo de regresión lineal simple
 dado que la relación es bastante lineal.
@@ -172,7 +176,7 @@ ggplot(trees, aes(x = Girth, y = Volume)) +
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](t2_ej1_files/figure-gfm/10-1.png)<!-- -->
+![](Figs/10-1.png)
 
 ## Obtenga los intervalos de confianza de los coeficientes de regresión.
 
@@ -204,7 +208,7 @@ par(mfrow = c(2,2))
 plot(model_rm)
 ```
 
-![](t2_ej1_files/figure-gfm/12-1.png)<!-- -->
+![](Figs/12-1.png)
 
 Podemos observar en los gráficos:
 
@@ -231,11 +235,11 @@ shapiro.test(model_rm$residuals)
 Comprobamos que el p-valor \> 0.05. No podemos decir que los datos no se
 ajusten a una distribución normal.
 
-3.  ‘Scale-Location’. Podemos observar que el mismo patrón que en el
+1.  ‘Scale-Location’. Podemos observar que el mismo patrón que en el
     ‘gráfico 1’ también se produce en este con los residuos
     estandarizados.
 
-4.  ‘Residuals vs Leverage’. Aunque el valor absoluto de los residuos
+2.  ‘Residuals vs Leverage’. Aunque el valor absoluto de los residuos
     estandarizados es menor que 3, llama la atención que la observación
     de mayor diámetro supere la línea de 0.5 de la distancia de Cook.
 
@@ -277,7 +281,7 @@ extract_eq(model_rm2, wrap = TRUE, use_coefs = TRUE)
 
 $$
 \\begin{aligned}
-\\operatorname{\\widehat{Volume}} &= 10.79 - 2.09(\\operatorname{Girth}) + 0.25(\\operatorname{Girth\\texttt{\\^{}}2})
+\\operatorname{\\widehat{Volume}} &= 10.79 - 2.09(\\operatorname{Girth}) + 0.25(\\operatorname{Girth\\texttt{^}2})
 \\end{aligned}
 $$
 
@@ -287,7 +291,12 @@ par(mfrow = c(2,2))
 plot(model_rm2)
 ```
 
-![](t2_ej1_files/figure-gfm/13-1.png)<!-- -->
+![](Figs/13-1.png)
+
+Con este modelo sí parece haber homocedasticidad en los residuos, por lo
+que se cumpliría este supuesto y sí sería un modelo válido, atendiendo a
+que también se mantiene la normalidad de los residuos y que todos entran
+en la distancia de Cook de 0.5.
 
 ### Supuesto de independencia de las observaciones
 
@@ -302,14 +311,183 @@ Durbin-Watson, del paquete ‘car’.
 
 # Activamos el paquete 'car'
 library(car)
+```
 
+    ## Loading required package: carData
+
+``` r
 durbinWatsonTest(model_rm)
 ```
 
     ##  lag Autocorrelation D-W Statistic p-value
-    ##    1       0.1679948      1.437206    0.07
+    ##    1       0.1679948      1.437206   0.058
     ##  Alternative hypothesis: rho != 0
 
 En casi todas las veces que se ejecuta este test, el p-valor del
 ‘bootstrap’ es \> .05 por lo que asumimos que los datos no presentan
 autocorrelación.
+
+## Obtenga la potencia estadística del modelo.
+
+Para estimar la potencia estadística del modelo de regresión lineal
+utilizamos los resultados de la prueba F (o tabla ANOVA) y la función
+*pwr.f2.test* del paquete pwr.
+
+``` r
+# Activamos el paquete 'pwr'
+library(pwr)
+```
+
+Para el modelo de grado 1:
+
+``` r
+pwr.f2.test(u = 1, #grados de libertad del numerador en la prueba F.
+v = 29, #grados de libertad del denominador en la prueba F.
+f2 = .935/(1-.935), #tamaño del efecto estimado
+sig.level = 0.05, #nivel de significación asumido
+power = NULL) #potencia estadística, queda con NULL para que se estime
+```
+
+    ## 
+    ##      Multiple regression power calculation 
+    ## 
+    ##               u = 1
+    ##               v = 29
+    ##              f2 = 14.38462
+    ##       sig.level = 0.05
+    ##           power = 1
+
+Para el modelo de grado 2:
+
+``` r
+pwr.f2.test(u = 2, #grados de libertad del numerador en la prueba F.
+v = 28, #grados de libertad del denominador en la prueba F.
+f2 = .962/(1-.962), #tamaño del efecto estimado
+sig.level = 0.05, #nivel de significación asumido
+power = NULL) #potencia estadística, queda con NULL para que se estime
+```
+
+    ## 
+    ##      Multiple regression power calculation 
+    ## 
+    ##               u = 2
+    ##               v = 28
+    ##              f2 = 25.31579
+    ##       sig.level = 0.05
+    ##           power = 1
+
+El valor de potencia estadística estimada es del 100%, es decir, podemos
+estar seguros de que nuestro modelo es significativo.
+
+## Realice una predicción del volumen cuando el diámetro es de 10.6, 8.2, 11 y 20 pulgadas.
+
+La función genérica predict() del paquete stats (instalado por defecto
+en R) permite hacer predicciones con nuestro modelo, a partir de nuevos
+valores para nuestra variable explicativa.
+
+Para indicarle a la función los valores de la variable explicativa para
+los cuales queremos estimar la variable respuesta, debemos crear un data
+frame que contenga los nuevos valores que queremos evaluar.
+
+Entonces en este caso escribimos:
+
+``` r
+new <- data.frame(Girth= c(10.6, 8.2, 11, 20))
+```
+
+Utilizamos la función predict() para predecir la respuesta según estos
+nuevos valores y el modelo ajustado previamente:
+
+Para el modelo de grado 1:
+
+``` r
+predict(model_rm, newdata = new)
+```
+
+    ##         1         2         3         4 
+    ## 16.754619  4.596564 18.780962 64.373669
+
+Para el modelo de grado 2:
+
+``` r
+predict(model_rm2, newdata = new)
+```
+
+    ##        1        2        3        4 
+    ## 17.20943 10.74583 18.57178 70.75850
+
+## Obtenga el intervalo de confianza e intervalo de predicción para los nuevos datos.
+
+### Intervalo de confianza
+
+Para mostrar los intervalos de confianza del 95% alrededor de la media
+de las predicciones, especificamos la opción interval = ”confidence”:
+
+Para el modelo de grado 1:
+
+``` r
+predict(model_rm,
+newdata = new,
+interval = "confidence")
+```
+
+    ##         fit       lwr       upr
+    ## 1 16.754619 14.696720 18.812518
+    ## 2  4.596564  1.602663  7.590464
+    ## 3 18.780962 16.848719 20.713204
+    ## 4 64.373669 60.617594 68.129745
+
+Para el modelo de grado 2:
+
+``` r
+predict(model_rm2,
+newdata = new,
+interval = "confidence")
+```
+
+    ##        fit      lwr      upr
+    ## 1 17.20943 15.57897 18.83988
+    ## 2 10.74583  7.02862 14.46303
+    ## 3 18.57178 17.05083 20.09272
+    ## 4 70.75850 66.55861 74.95839
+
+Podemos decir con un 95% de confianza que, según nuestro modelo de grado
+2, un cerezo negro de 20 pulgadas de diámetro tiene un volumen entre
+66.55861 y 74.95839 pies cúbicos.
+
+### Intervalo de predicción
+
+Para mostrar los intervalos de predicción del 95% alrededor de las
+predicciones puntuales, especificamos la opción interval = ”prediction”:
+
+Para el modelo de grado 1:
+
+``` r
+predict(model_rm,
+newdata = new,
+interval = "prediction")
+```
+
+    ##         fit       lwr      upr
+    ## 1 16.754619  7.818153 25.69108
+    ## 2  4.596564 -4.600660 13.79379
+    ## 3 18.780962  9.872593 27.68933
+    ## 4 64.373669 54.900888 73.84645
+
+Para el modelo de grado 2:
+
+``` r
+predict(model_rm2,
+newdata = new,
+interval = "prediction")
+```
+
+    ##        fit       lwr      upr
+    ## 1 17.20943 10.186543 24.23231
+    ## 2 10.74583  2.968929 18.52273
+    ## 3 18.57178 11.573505 25.57005
+    ## 4 70.75850 62.739674 78.77733
+
+Es decir, según el modelo de grado 2, el 95% de los cerezos negros de 20
+pulgadas de diámetro tendrá un volumen entre 62.739674 y 78.77733 pies
+cúbicos.
