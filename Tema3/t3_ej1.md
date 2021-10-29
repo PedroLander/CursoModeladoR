@@ -1,4 +1,4 @@
-﻿Utilizaremos los datos “trees”. Se trata de un conjunto de datos que
+Utilizaremos los datos “trees”. Se trata de un conjunto de datos que
 consta de 31 observaciones sobre mediciones de la circunferencia, altura
 y volumen de la madera sobre cerezos negros talados:
 
@@ -8,8 +8,10 @@ y volumen de la madera sobre cerezos negros talados:
 
 Para acceder a los datos escribimos en R:
 
-    # Activamos los datos
-    data(trees)
+``` r
+# Activamos los datos
+data(trees)
+```
 
 Se desea estimar un modelo de regresión dque estime el volumen (Volume)
 en función de la circunferencia del árbol (Girth) y la altura del árbol
@@ -20,8 +22,10 @@ en función de la circunferencia del árbol (Girth) y la altura del árbol
 Comenzamos describiendo la relación entre las variables Volume, Girth y
 Height.
 
-    # observamos las primeras 5 observaciones
-    head(trees)
+``` r
+# observamos las primeras 5 observaciones
+head(trees)
+```
 
     ##   Girth Height Volume
     ## 1   8.3     70   10.3
@@ -31,8 +35,10 @@ Height.
     ## 5  10.7     81   18.8
     ## 6  10.8     83   19.7
 
-    # Obtenemos las dimensiones de la base de datos
-    dim(trees)
+``` r
+# Obtenemos las dimensiones de la base de datos
+dim(trees)
+```
 
     ## [1] 31  3
 
@@ -43,20 +49,18 @@ Podemos visualizar la relación entre la respuesta y los predictores
 mediante 2 diagramas de dispersión. Para ello utilizamos la función
 ggpairs del paquete GGally.
 
-    # Instalamos el paquete GGally en caso de no tenerlo instalado
-    #install.packages("GGally")
+``` r
+# Instalamos el paquete GGally en caso de no tenerlo instalado
+#install.packages("GGally")
 
-    # Activamos el paquete GGally
-    library(GGally)
+# Activamos el paquete GGally
+library(GGally)
 
-    ## Registered S3 method overwritten by 'GGally':
-    ##   method from   
-    ##   +.gg   ggplot2
+# Graficamos las 3 variables
+ggpairs(trees[,c("Volume", "Girth","Height")])
+```
 
-    # Graficamos las 3 variables
-    ggpairs(trees[,c("Volume", "Girth","Height")])
-
-![](t3_ej1_files/figure-markdown_strict/4-1.png)
+![](t3_ej1_files/figure-markdown_github/4-1.png)
 
 Vemos que exsiste una relación positiva entre los tres pares de
 variables. En caso del par Volume y Girth, la correlación es mayor.
@@ -64,32 +68,36 @@ variables. En caso del par Volume y Girth, la correlación es mayor.
 También podemos obtener un gráfico 3D con la nube de puntos mediante la
 función scatter3D del paquete plot3D.
 
-    # Instalamos el paquete plot3D en caso de no tenerlo instalado
-    #install.packages("plot3D")
+``` r
+# Instalamos el paquete plot3D en caso de no tenerlo instalado
+#install.packages("plot3D")
 
-    # Activamos el paquete plot3D
-    library(plot3D)
+# Activamos el paquete plot3D
+library(plot3D)
 
-    # Realizamos el gráfico 3D con las 3 variables que estamos analizando
-    scatter3D(x=trees$Height,
-    y=trees$Girth,
-    z=trees$Volume,
-    xlab="Height",
-    ylab="Girth",
-    zlab="Volume")
+# Realizamos el gráfico 3D con las 3 variables que estamos analizando
+scatter3D(x=trees$Height,
+y=trees$Girth,
+z=trees$Volume,
+xlab="Height",
+ylab="Girth",
+zlab="Volume")
+```
 
-![](t3_ej1_files/figure-markdown_strict/5-1.png)
+![](t3_ej1_files/figure-markdown_github/5-1.png)
 
 ## Realice un modelo de regresión múltiple por medio de la función lm() solo con efectos principales. Interprete la bondad de ajuste del modelo. Calcule la tasa de error del modelo.
 
 Realizamos un modelo de regresión múltiple por medio de la función lm()
 para las 3 variables que vamos a analizar (Volume, Girth y Height).
 
-    # Ajustamos el modelo de regresión lineal múltiple
-    model_trees <- lm(Volume~Girth+Height, data= trees)
+``` r
+# Ajustamos el modelo de regresión lineal múltiple
+model_trees <- lm(Volume~Girth+Height, data= trees)
 
-    # Observamos los resultados
-    summary(model_trees)
+# Observamos los resultados
+summary(model_trees)
+```
 
     ## 
     ## Call:
@@ -115,16 +123,15 @@ Para interpretar la bondad de ajuste observamos los resultados finales
 del modelo:
 
 -   Prueba de F global: El modelo de regresión predice el volumen de
-    madera significativamente bien (F (2, 28) = 255, p −value &lt;
-    .001).
+    madera significativamente bien (F (2, 28) = 255, p −value \< .001).
 
 -   El error estándar residual (RSE) es de 3.882 pies cúbicos.
 
 -   La tasa de error es
 
-<!-- -->
-
-    sigma(model_trees)/mean(trees$Volume)
+``` r
+sigma(model_trees)/mean(trees$Volume)
+```
 
     ## [1] 0.1286612
 
@@ -136,7 +143,9 @@ del modelo:
 
 Obtenemos la tabla de coeficientes:
 
-    summary(model_trees)$coefficients
+``` r
+summary(model_trees)$coefficients
+```
 
     ##                Estimate Std. Error   t value     Pr(>|t|)
     ## (Intercept) -57.9876589  8.6382259 -6.712913 2.749507e-07
@@ -162,7 +171,9 @@ Obtenemos la tabla de coeficientes:
 
 ## Calcule los intervalos de confianza para los coeficientes.
 
-    confint(model_trees)
+``` r
+confint(model_trees)
+```
 
     ##                    2.5 %      97.5 %
     ## (Intercept) -75.68226247 -40.2930554
@@ -176,19 +187,23 @@ relativa de los predictores con el método **LMG**. Nos da la
 contribución de cada predictor al R<sup>2</sup> (promediada según el
 orden en que se ingresan los predictores).
 
-    # Instalamos el paquete relaimpo en caso de no tenerlo instalado
-    #install.packages("relaimpo")
+``` r
+# Instalamos el paquete relaimpo en caso de no tenerlo instalado
+#install.packages("relaimpo")
 
-    # Activamos el paquete
-    library(relaimpo)
+# Activamos el paquete
+library(relaimpo)
+```
 
-    # Calculamos la importancia relativa de los predictores.
-    crlm <- calc.relimp(model_trees, # objeto con el modelo
-    type = c("lmg"), # medida utilizada
-    rela = TRUE) # para sumar 100%
+``` r
+# Calculamos la importancia relativa de los predictores.
+crlm <- calc.relimp(model_trees, # objeto con el modelo
+type = c("lmg"), # medida utilizada
+rela = TRUE) # para sumar 100%
 
-    #resultados
-    crlm
+#resultados
+crlm
+```
 
     ## Response variable: Volume 
     ## Total response variance: 270.2028 
@@ -218,11 +233,13 @@ relativa en el modelo respecto a Height (.195439).
 
 Realizamos los gráficos diagnóstico del modelo.
 
-    #gráficos diagnóstico del modelo
-    par(mfrow = c(2,2))
-    plot(model_trees)
+``` r
+#gráficos diagnóstico del modelo
+par(mfrow = c(2,2))
+plot(model_trees)
+```
 
-![](t3_ej1_files/figure-markdown_strict/12-1.png)
+![](t3_ej1_files/figure-markdown_github/12-1.png)
 
 Podemos indicar que:
 
@@ -233,10 +250,10 @@ Podemos indicar que:
     las colas no se apartan demasiado de la diagonal. Lo podemos
     comprobar con la prueba de Shapiro-Wilk.
 
-<!-- -->
-
-    # Prueba de normalidad de los residuos del modelo
-    shapiro.test(model_trees$residuals)
+``` r
+# Prueba de normalidad de los residuos del modelo
+shapiro.test(model_trees$residuals)
+```
 
     ## 
     ##  Shapiro-Wilk normality test
@@ -244,7 +261,7 @@ Podemos indicar que:
     ## data:  model_trees$residuals
     ## W = 0.97431, p-value = 0.644
 
-Comprobamos que el p-valor &gt; 0.05 por lo que no descartamos la
+Comprobamos que el p-valor \> 0.05 por lo que no descartamos la
 hipótesis nula, es decir, que los residuos siguen una distribución
 normal.
 
@@ -259,47 +276,57 @@ normal.
 
 Ajustamos el modelo de regresión lineal múltiple con interacción:
 
-    # Ajustamos un RLM con interacción
-    model_trees2 <- lm(Volume~Girth*Height, data= trees)
+``` r
+# Ajustamos un RLM con interacción
+model_trees2 <- lm(Volume~Girth*Height, data= trees)
+```
 
 Comprobamos si existe multicolinealidad de nuestras variables
 predictoras.
 
-    # Instalamos el paquete car en caso de no tenerlo instalado
-    #install.packages("car")
+``` r
+# Instalamos el paquete car en caso de no tenerlo instalado
+#install.packages("car")
 
-    # Activamos el paquete
-    library(car)
+# Activamos el paquete
+library(car)
+```
 
-    # Multicolinealidad: VIF
-    vif(model_trees2)
+``` r
+# Multicolinealidad: VIF
+vif(model_trees2)
+```
 
     ##        Girth       Height Girth:Height 
     ##    148.66145     15.93884    210.97302
 
-Tenemos problemas de multicolinealidad, los V IF son &gt; 5, esto ocurre
+Tenemos problemas de multicolinealidad, los V IF son \> 5, esto ocurre
 porque las variables no están centradas y hemos incluido un término de
 interacción.
 
 Vamos a centrar las variables para eliminar los problemas de
 multicolinealidad.
 
-    # Centramos la variable Girth
-    Girth2<-scale(trees$Girth,
-    center=TRUE,
-    scale=FALSE)
+``` r
+# Centramos la variable Girth
+Girth2<-scale(trees$Girth,
+center=TRUE,
+scale=FALSE)
 
-    # Centramos la variable Height
-    Height2<-scale(trees$Height,
-    center=TRUE,
-    scale=FALSE)
+# Centramos la variable Height
+Height2<-scale(trees$Height,
+center=TRUE,
+scale=FALSE)
 
-    # Volvemos a ajustar un RLM con interacción con las variables centradas
-    model_trees3 <- lm(trees$Volume ~ Girth2*Height2)
+# Volvemos a ajustar un RLM con interacción con las variables centradas
+model_trees3 <- lm(trees$Volume ~ Girth2*Height2)
+```
 
 Volvemos a calcular el VIF.
 
-    vif(model_trees3)
+``` r
+vif(model_trees3)
+```
 
     ##         Girth2        Height2 Girth2:Height2 
     ##       1.513180       1.487784       1.126849
@@ -310,7 +337,9 @@ Ya no tenemos problemas de multicolinealidad.
 
 A continuación, evaluamos la significación de cada término del modelo.
 
-    Anova(model_trees3)
+``` r
+Anova(model_trees3)
+```
 
     ## Anova Table (Type II tests)
     ## 
@@ -323,14 +352,16 @@ A continuación, evaluamos la significación de cada término del modelo.
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Vemos que la interacción es significativa (F (1, 27) = 30.51191, p &lt;
+Vemos que la interacción es significativa (F (1, 27) = 30.51191, p \<
 .001) y por tanto debe incluirse en el modelo final.
 
 ## Interprete los coeficientes del modelo.
 
 Observamos la tabla de coeficientes e interpretamos:
 
-    summary(model_trees3)
+``` r
+summary(model_trees3)
+```
 
     ## 
     ## Call:
@@ -367,4 +398,9 @@ de cada pulgada extra de circunferencia pasa a ser 4.37789 + (0.13465∗1)
 = 4.51254 pies cúbicos.
 
 El modelo final es:
-Volume = 28.81791 + 4.37789 ∗ <SPAN STYLE="text-decoration:overline">Girth</SPAN>+0.48687∗<SPAN STYLE="text-decoration:overline">Height</SPAN>+ 0.13465\*<SPAN STYLE="text-decoration:overline">Girth</SPAN>:<SPAN STYLE="text-decoration:overline">Height</SPAN>
+
+$$
+\\begin{aligned}
+\\operatorname{{Volume}} &= 28.81791 + 4.37789 ∗\\operatorname{\\overline{Girth}} + 0.48687 ∗ \\operatorname{\\overline{Height}} + 0.13465\*\\operatorname{\\overline{Girth}} : \\operatorname{\\overline{Height}}
+\\end{aligned}
+$$
